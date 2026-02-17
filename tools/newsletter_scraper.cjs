@@ -288,7 +288,7 @@ async function scrapeAIRundown() {
 
             subStories.forEach(story => {
                 articles.push({
-                    id: crypto.createHash('md5').update(story.url + story.title).digest('hex'),
+                    id: crypto.createHash('md5').update(story.url).digest('hex'),
                     ...story,
                     scraped_at: new Date().toISOString()
                 });
