@@ -2,7 +2,7 @@ const { scrapeBensBites, scrapeAIRundown } = require('./newsletter_scraper.cjs')
 const fs = require('fs');
 const path = require('path');
 
-const DATA_FILE = path.join(__dirname, '../data.json');
+const DATA_FILE = path.join(__dirname, '../public/data.json');
 
 async function main() {
     console.log('🚀 Starting Master Scraper (v5 - Strict 72h Real-Date Filter)...');
@@ -49,12 +49,17 @@ async function main() {
         const validArticles = allMerged.filter(article => {
             const pubDate = new Date(article.published_at);
             const isRecent = pubDate >= seventyTwoHoursAgo;
+
+            // Domain check: Only allow articles hosted on the primary source websites
+            const isInternalSource = article.url.toLowerCase().includes('bensbites.com') ||
+                article.url.toLowerCase().includes('therundown.ai');
+
             const isNotReddit = article.source !== 'Reddit' && !article.url.includes('reddit.com');
 
             if (!isRecent) console.log(`  - Skipping old: ${article.title} (${article.published_at})`);
-            if (!isNotReddit) console.log(`  - Skipping Reddit: ${article.title}`);
+            if (!isInternalSource) console.log(`  - Skipping external URL: ${article.url}`);
 
-            return isRecent && isNotReddit;
+            return isRecent && isInternalSource && isNotReddit;
         });
 
         // Sort by newest first
